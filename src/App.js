@@ -15,61 +15,6 @@ const Page404 = React.lazy(() => import('./views/Pages/Page404'));
 const Page500 = React.lazy(() => import('./views/Pages/Page500'));
 
 class App extends Component {
-  state = {
-    biller: {
-      product_id: "",
-      name: "",
-      description: "",
-      steps: [
-        {
-          name: "",
-          description: "",
-          request_body_type: "",
-          response_body_type: "",
-          steps: [
-            {
-              name: "",
-              description: "",
-              request_body_type: "",
-              response_body_type: "",
-              request_type: "",
-              url: "",
-              method: "POST",
-              data: [
-                {
-                  source_data: "",
-                  target_data: "",
-                  target_name: "",
-                  target_step: [],
-                  key: "",
-                  pre_value: "",
-                  post_value: ""
-                }
-              ]
-            }
-          ],
-          data: [
-            {
-              source_data: "",
-              target_data: "",
-              target_name: "",
-              target_step: [],
-              key: "",
-              pre_value: "",
-              post_value: ""
-            }
-          ]
-        }
-      ],
-      status: false,
-      additional_data: [
-        [
-          "", ""
-        ]
-      ]
-    }
-  }
-
   render() {
     return (
       <HashRouter>

@@ -7,13 +7,13 @@ export default {
     },
     {
       name: "List Data",
-      url: "/users",
+      url: "/list",
       icon: "icon-notebook"
     },
     {
-      name: "Setting",
+      name: "Forms",
       url: "/base/forms",
-      icon: "icon-settings"
+      icon: "icon-pencil"
     }
   ]
 };

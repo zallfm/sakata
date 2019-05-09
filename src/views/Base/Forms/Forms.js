@@ -15,7 +15,72 @@ import {
   Row
 } from "reactstrap";
 
+import { connect } from "react-redux";
+import { addBiller, updateBiller } from "../../../redux/actions/biller";
+const initialBiller = {
+  product_id: "",
+  name: "",
+  description: "",
+  steps: [
+    {
+      name: "",
+      description: "",
+      request_body_type: "",
+      response_body_type: "",
+      steps: [
+        {
+          name: "",
+          description: "",
+          request_body_type: "",
+          response_body_type: "",
+          request_type: "",
+          url: "",
+          method: "POST",
+          data: [
+            {
+              source_data: "",
+              target_data: "",
+              target_name: "",
+              target_step: [],
+              key: "",
+              pre_value: "",
+              post_value: ""
+            }
+          ]
+        }
+      ],
+      data: [
+        {
+          source_data: "",
+          target_data: "",
+          target_name: "",
+          target_step: [],
+          key: "",
+          pre_value: "",
+          post_value: ""
+        }
+      ]
+    }
+  ],
+  status: false,
+  additional_data: [
+    [
+      "", ""
+    ]
+  ]
+}
 class Forms extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      isToggleOn: [],
+      collapse: [],
+      fadeIn: true,
+      timeout: 300,
+      biller: this.props.match.params.index && this.props.dataBiller[this.props.match.params.index] ?
+        this.props.dataBiller[this.props.match.params.index] : initialBiller
+    };
+  }
   state = {
     isToggleOn: [],
     collapse: [],
@@ -69,7 +134,7 @@ class Forms extends Component {
       status: false,
       additional_data: [
         [
-         "", ""
+          "", ""
         ]
       ]
     }
@@ -93,13 +158,13 @@ class Forms extends Component {
   // handle input Biller
   handleChangeBiller = (event, target) => {
 
-        this.setState({
-          biller: {
-            ...this.state.biller,
-            [target]: event.currentTarget.value
-          }
-        })
-    };
+    this.setState({
+      biller: {
+        ...this.state.biller,
+        [target]: event.currentTarget.value
+      }
+    })
+  };
 
   // handle input StepIn
   handleChangeStepIn = (stepInIdx, event, target) => {
@@ -219,7 +284,7 @@ class Forms extends Component {
 
   // Add Stepin Input Form
   addStepIn = e => {
-    this.setState({isToggleOn:true});
+    this.setState({ isToggleOn: true });
     this.setState({
       biller: {
         ...this.state.biller,
@@ -301,7 +366,7 @@ class Forms extends Component {
   };
 
   // Add StepOut Data Form
-  addStepOutData = (stepInIdx, stepOutIdx)  => {
+  addStepOutData = (stepInIdx, stepOutIdx) => {
     this.setState({
       biller: {
         ...this.state.biller,
@@ -390,8 +455,8 @@ class Forms extends Component {
           {
             ...this.state.biller.steps[stepInIdx],
             steps: this.state.biller.steps[stepInIdx].steps.filter(
-                (steps, currentStepOutIdx) => stepOutIdx !== currentStepOutIdx
-              )
+              (steps, currentStepOutIdx) => stepOutIdx !== currentStepOutIdx
+            )
           },
           ...this.state.biller.steps.slice(stepInIdx + 1)
         ]
@@ -440,17 +505,22 @@ class Forms extends Component {
     });
   };
 
-  handleSubmitBiller = e => {
-    console.log(this.state.biller)
-    e.preventDefault();
-    const newObject = this.state.biller.additional_data.reduce((prev,curr) => {
-          prev[curr[0]]=curr[1];
-          return prev;
-        },{})
-    console.log(newObject)
+  handleSubmitBiller = (isEdit) => {
+    const newObject = this.state.biller.additional_data.reduce((prev, curr) => {
+      prev[curr[0]] = curr[1];
+      return prev;
+    }, {})
+
+    isEdit ? this.props.updateBiller({
+      data: this.state.biller,
+      index: this.props.match.params.index
+    }) :
+      this.props.addBiller(this.state.biller)
   }
 
   render() {
+    console.log(this.props)
+    const isEdit = this.props.match.params.edit === 'edit' ? true : false;
     return (
       <div className="animated fadeIn">
         <Row>
@@ -527,1040 +597,1040 @@ class Forms extends Component {
                   <br />
                   <br />
 
-                    {this.state.isToggleOn === true ? (
-                      <Row>
-                        <Col xs="12">
-                          <Fade timeout={this.state.timeout} in={this.state.fadeIn}>
-                            {this.state.biller.steps.map((stepIn, stepInIdx) => {
-                              const nameId = `name-${stepInIdx}`,
-                                descriptionId = `description-${stepInIdx}`,
-                                request_body_typeId = `request_body_type-${stepInIdx}`,
-                                response_body_typeId = `response_body_type-${stepInIdx}`;
-                              return (
-                                <Card>
-                                  <CardHeader>
-                                    <strong
-                                      htmlFor={this.state.biller.steps}
-                                    >{`StepIn ${stepInIdx + 1} `}</strong>
-                                    <small> Form</small>
-                                    <div className="card-header-actions">
+                  {this.state.isToggleOn === true ? (
+                    <Row>
+                      <Col xs="12">
+                        <Fade timeout={this.state.timeout} in={this.state.fadeIn}>
+                          {this.state.biller.steps.map((stepIn, stepInIdx) => {
+                            const nameId = `name-${stepInIdx}`,
+                              descriptionId = `description-${stepInIdx}`,
+                              request_body_typeId = `request_body_type-${stepInIdx}`,
+                              response_body_typeId = `response_body_type-${stepInIdx}`;
+                            return (
+                              <Card>
+                                <CardHeader>
+                                  <strong
+                                    htmlFor={this.state.biller.steps}
+                                  >{`StepIn ${stepInIdx + 1} `}</strong>
+                                  <small> Form</small>
+                                  <div className="card-header-actions">
+                                    <Button
+                                      color="link"
+                                      className="card-header-action btn-minimize"
+                                      data-target="#collapseExample"
+                                      onClick={() => this.toggleStepIn(stepInIdx)}
+                                    >
+                                      <i className="icon-arrow-up" />
+                                    </Button>
+                                    <Button
+                                      color="link"
+                                      className="card-header-action btn-close"
+                                      onClick={() =>
+                                        this.onDeleteStepIn(stepInIdx)
+                                      }
+                                    >
+                                      <i className="icon-close" />
+                                    </Button>
+                                  </div>
+                                </CardHeader>
+                                <Collapse
+                                  isOpen={this.state.collapse}
+                                  id="collapseExample"
+                                >
+                                  <CardBody>
+                                    <Form
+                                      onSubmit={this.handleSubmitStepin}
+                                      className="form-horizontal"
+                                    >
+                                      <FormGroup row>
+                                        <Col md="3">
+                                          <Label htmlFor={nameId}>Name</Label>
+                                        </Col>
+                                        <Col xs="12" md="9">
+                                          <Input
+                                            type="text"
+                                            id={nameId}
+                                            name={nameId}
+                                            data-id={stepInIdx}
+                                            value={this.state.biller.steps[stepInIdx].name}
+                                            onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "name")}
+                                            className="name"
+                                            placeholder="Enter Name"
+                                          />
+                                        </Col>
+                                      </FormGroup>
+                                      <FormGroup row>
+                                        <Col md="3">
+                                          <Label htmlFor={descriptionId}>
+                                            Description
+                                            </Label>
+                                        </Col>
+                                        <Col xs="12" md="9">
+                                          <Input
+                                            type="textarea"
+                                            rows="9"
+                                            name={descriptionId}
+                                            data-id={stepInIdx}
+                                            id={descriptionId}
+                                            value={this.state.biller.steps[stepInIdx].description}
+                                            onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "description")}
+                                            className="description"
+                                            placeholder="Decription..."
+                                          />
+                                        </Col>
+                                      </FormGroup>
+                                      <FormGroup row>
+                                        <Col md="3">
+                                          <Label>Request Body Type</Label>
+                                        </Col>
+                                        <Col md="9">
+                                          <FormGroup check inline>
+                                            <Input
+                                              className="form-check-input"
+                                              type="radio"
+                                              id="json"
+                                              name={request_body_typeId}
+                                              value="json"
+                                              checked={this.state.biller.steps[stepInIdx].request_body_type === 'json'}
+                                              onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "request_body_type")}
+                                            />
+                                            <Label
+                                              className="form-check-label"
+                                              check
+                                              htmlFor="request_body_type"
+                                            >
+                                              Json
+                                              </Label>
+                                          </FormGroup>
+                                          <FormGroup check inline>
+                                            <Input
+                                              className="form-check-input"
+                                              type="radio"
+                                              id="xml"
+                                              name={request_body_typeId}
+                                              value="xml"
+                                              checked={this.state.biller.steps[stepInIdx].request_body_type === 'xml'}
+                                              onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "request_body_type")}
+                                            />
+                                            <Label
+                                              className="form-check-label"
+                                              check
+                                              htmlFor="request_body_type"
+                                            >
+                                              Xml
+                                              </Label>
+                                          </FormGroup>
+                                        </Col>
+                                      </FormGroup>
+                                      <FormGroup row>
+                                        <Col md="3">
+                                          <Label>Response Body Type</Label>
+                                        </Col>
+                                        <Col md="9">
+                                          <FormGroup check inline>
+                                            <Input
+                                              className="form-check-input"
+                                              type="radio"
+                                              id="json"
+                                              name={response_body_typeId}
+                                              value="json"
+                                              checked={this.state.biller.steps[stepInIdx].response_body_type === 'json'}
+                                              onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "response_body_type")}
+
+                                            />
+                                            <Label
+                                              className="form-check-label"
+                                              check
+                                              htmlFor="response_body_type"
+                                            >
+                                              Json
+                                              </Label>
+                                          </FormGroup>
+                                          <FormGroup check inline>
+                                            <Input
+                                              className="form-check-input"
+                                              type="radio"
+                                              id="xml"
+                                              name={response_body_typeId}
+                                              value="xml"
+                                              checked={this.state.biller.steps[stepInIdx].response_body_type === 'xml'}
+                                              onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "response_body_type")}
+
+                                            />
+                                            <Label
+                                              className="form-check-label"
+                                              check
+                                              htmlFor="response_body_type"
+                                            >
+                                              Xml
+                                              </Label>
+                                          </FormGroup>
+                                        </Col>
+                                      </FormGroup>
                                       <Button
-                                        color="link"
-                                        className="card-header-action btn-minimize"
-                                        data-target="#collapseExample"
-                                        onClick={() => this.toggleStepIn(stepInIdx)}
-                                      >
-                                        <i className="icon-arrow-up" />
-                                      </Button>
-                                      <Button
-                                        color="link"
-                                        className="card-header-action btn-close"
+                                        color="primary mr-2"
                                         onClick={() =>
-                                          this.onDeleteStepIn(stepInIdx)
+                                          this.addStepOut(stepInIdx)
                                         }
                                       >
-                                        <i className="icon-close" />
-                                      </Button>
-                                    </div>
-                                  </CardHeader>
-                                  <Collapse
-                                    isOpen={this.state.collapse}
-                                    id="collapseExample"
-                                  >
-                                    <CardBody>
-                                      <Form
-                                        onSubmit={this.handleSubmitStepin}
-                                        className="form-horizontal"
+                                        <i className="fa fa-plus" />
+                                        &nbsp;Add StepOut
+                                        </Button>
+                                      <Button
+                                        onClick={() =>
+                                          this.addStepInData(stepInIdx)
+                                        }
+                                        color="primary"
                                       >
-                                        <FormGroup row>
-                                          <Col md="3">
-                                            <Label htmlFor={nameId}>Name</Label>
-                                          </Col>
-                                          <Col xs="12" md="9">
-                                            <Input
-                                              type="text"
-                                              id={nameId}
-                                              name={nameId}
-                                              data-id={stepInIdx}
-                                              value={this.state.biller.steps[stepInIdx].name}
-                                              onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "name")}
-                                              className="name"
-                                              placeholder="Enter Name"
-                                            />
-                                          </Col>
-                                        </FormGroup>
-                                        <FormGroup row>
-                                          <Col md="3">
-                                            <Label htmlFor={descriptionId}>
-                                              Description
-                                            </Label>
-                                          </Col>
-                                          <Col xs="12" md="9">
-                                            <Input
-                                              type="textarea"
-                                              rows="9"
-                                              name={descriptionId}
-                                              data-id={stepInIdx}
-                                              id={descriptionId}
-                                              value={this.state.biller.steps[stepInIdx].description}
-                                              onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "description")}
-                                              className="description"
-                                              placeholder="Decription..."
-                                            />
-                                          </Col>
-                                        </FormGroup>
-                                        <FormGroup row>
-                                          <Col md="3">
-                                            <Label>Request Body Type</Label>
-                                          </Col>
-                                          <Col md="9">
-                                            <FormGroup check inline>
-                                              <Input
-                                                className="form-check-input"
-                                                type="radio"
-                                                id="json"
-                                                name={request_body_typeId}
-                                                value="json"
-                                                checked={this.state.biller.steps[stepInIdx].request_body_type === 'json'}
-                                                onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "request_body_type")}
-                                              />
-                                              <Label
-                                                className="form-check-label"
-                                                check
-                                                htmlFor="request_body_type"
-                                              >
-                                                Json
-                                              </Label>
-                                            </FormGroup>
-                                            <FormGroup check inline>
-                                              <Input
-                                                className="form-check-input"
-                                                type="radio"
-                                                id="xml"
-                                                name={request_body_typeId}
-                                                value="xml"
-                                                checked={this.state.biller.steps[stepInIdx].request_body_type === 'xml'}
-                                                onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "request_body_type")}
-                                              />
-                                              <Label
-                                                className="form-check-label"
-                                                check
-                                                htmlFor="request_body_type"
-                                              >
-                                                Xml
-                                              </Label>
-                                            </FormGroup>
-                                          </Col>
-                                        </FormGroup>
-                                        <FormGroup row>
-                                          <Col md="3">
-                                            <Label>Response Body Type</Label>
-                                          </Col>
-                                          <Col md="9">
-                                            <FormGroup check inline>
-                                              <Input
-                                                className="form-check-input"
-                                                type="radio"
-                                                id="json"
-                                                name={response_body_typeId}
-                                                value="json"
-                                                checked={this.state.biller.steps[stepInIdx].response_body_type === 'json'}
-                                                onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "response_body_type")}
-
-                                              />
-                                              <Label
-                                                className="form-check-label"
-                                                check
-                                                htmlFor="response_body_type"
-                                              >
-                                                Json
-                                              </Label>
-                                            </FormGroup>
-                                            <FormGroup check inline>
-                                              <Input
-                                                className="form-check-input"
-                                                type="radio"
-                                                id="xml"
-                                                name={response_body_typeId}
-                                                value="xml"
-                                                checked={this.state.biller.steps[stepInIdx].response_body_type === 'xml'}
-                                                onChange={(event) => this.handleChangeStepIn(stepInIdx, event, "response_body_type")}
-
-                                              />
-                                              <Label
-                                                className="form-check-label"
-                                                check
-                                                htmlFor="response_body_type"
-                                              >
-                                                Xml
-                                              </Label>
-                                            </FormGroup>
-                                          </Col>
-                                        </FormGroup>
-                                        <Button
-                                          color="primary mr-2"
-                                          onClick={() =>
-                                            this.addStepOut(stepInIdx)
-                                          }
-                                        >
-                                          <i className="fa fa-plus" />
-                                          &nbsp;Add StepOut
+                                        <i className="fa fa-plus" />
+                                        &nbsp;Add StepIn Data
                                         </Button>
-                                        <Button
-                                          onClick={() =>
-                                            this.addStepInData(stepInIdx)
-                                          }
-                                          color="primary"
-                                        >
-                                          <i className="fa fa-plus" />
-                                          &nbsp;Add StepIn Data
-                                        </Button>
-                                        <br />
-                                        <br />
-                                        {/* end form StepIn Add */}
+                                      <br />
+                                      <br />
+                                      {/* end form StepIn Add */}
 
-                                        {/* Table form Stepin Data */}
-                                        <Row>
-                                          <Col xs="12">
-                                            <Fade
-                                              timeout={this.state.timeout}
-                                              in={this.state.fadeIn}
-                                            >
-                                              {stepIn.data.map(
-                                                (stepsdata, stepInDataIdx) => {
-                                                  const source_dataId = `source_data-${stepInDataIdx}`,
-                                                    target_dataId = `target_data-${stepInDataIdx}`,
-                                                    target_nameId = `target_name-${stepInDataIdx}`,
-                                                    target_stepId = `target_step-${stepInDataIdx}`,
-                                                    keyId = `key-${stepInDataIdx}`,
-                                                    pre_valueId = `pre_value-${stepInDataIdx}`,
-                                                    post_valueId = `post_value-${stepInDataIdx}`;
-                                                  return (
-                                                    <Card>
-                                                      <CardHeader>
-                                                        <strong
-                                                          htmlFor={stepIn.data}
-                                                        >{`StepIn Data ${stepInIdx +
+                                      {/* Table form Stepin Data */}
+                                      <Row>
+                                        <Col xs="12">
+                                          <Fade
+                                            timeout={this.state.timeout}
+                                            in={this.state.fadeIn}
+                                          >
+                                            {stepIn.data.map(
+                                              (stepsdata, stepInDataIdx) => {
+                                                const source_dataId = `source_data-${stepInDataIdx}`,
+                                                  target_dataId = `target_data-${stepInDataIdx}`,
+                                                  target_nameId = `target_name-${stepInDataIdx}`,
+                                                  target_stepId = `target_step-${stepInDataIdx}`,
+                                                  keyId = `key-${stepInDataIdx}`,
+                                                  pre_valueId = `pre_value-${stepInDataIdx}`,
+                                                  post_valueId = `post_value-${stepInDataIdx}`;
+                                                return (
+                                                  <Card>
+                                                    <CardHeader>
+                                                      <strong
+                                                        htmlFor={stepIn.data}
+                                                      >{`StepIn Data ${stepInIdx +
                                                         1}`}</strong>
-                                                        <small>{` Form ${stepInDataIdx +
+                                                      <small>{` Form ${stepInDataIdx +
                                                         1}`}</small>
-                                                        <div className="card-header-actions">
-                                                          <Button
-                                                            color="link"
-                                                            className="card-header-action btn-minimize"
-                                                            data-target="#collapseExample"
-                                                            onClick={() =>
-                                                              this.toggleStepInData(
-                                                                stepInDataIdx
-                                                              )
-                                                            }
-                                                          >
-                                                            <i className="icon-arrow-up" />
-                                                          </Button>
-                                                          <Button
-                                                            color="link"
-                                                            className="card-header-action btn-close"
-                                                            onClick={() =>
-                                                              this.onDeleteStepInData(
-                                                                stepInIdx, stepInDataIdx
-                                                              )
-                                                            }
-                                                          >
-                                                            <i className="icon-close" />
-                                                          </Button>
-                                                        </div>
-                                                      </CardHeader>
-                                                      <Collapse
-                                                        isOpen={this.state.collapse}
-                                                        id="collapseExample"
-                                                      >
-                                                        <CardBody>
-                                                          <Form className="form-horizontal">
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="source_data">
-                                                                  Source Data
+                                                      <div className="card-header-actions">
+                                                        <Button
+                                                          color="link"
+                                                          className="card-header-action btn-minimize"
+                                                          data-target="#collapseExample"
+                                                          onClick={() =>
+                                                            this.toggleStepInData(
+                                                              stepInDataIdx
+                                                            )
+                                                          }
+                                                        >
+                                                          <i className="icon-arrow-up" />
+                                                        </Button>
+                                                        <Button
+                                                          color="link"
+                                                          className="card-header-action btn-close"
+                                                          onClick={() =>
+                                                            this.onDeleteStepInData(
+                                                              stepInIdx, stepInDataIdx
+                                                            )
+                                                          }
+                                                        >
+                                                          <i className="icon-close" />
+                                                        </Button>
+                                                      </div>
+                                                    </CardHeader>
+                                                    <Collapse
+                                                      isOpen={this.state.collapse}
+                                                      id="collapseExample"
+                                                    >
+                                                      <CardBody>
+                                                        <Form className="form-horizontal">
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="source_data">
+                                                                Source Data
                                                                 </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  name={
-                                                                    source_dataId
-                                                                  }
-                                                                  data-id={
-                                                                    stepInDataIdx
-                                                                  }
-                                                                  id={source_dataId}
-                                                                  value={stepIn.data[stepInDataIdx].source_data}
-                                                                  onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "source_data")}
-                                                                  placeholder="Enter Source Data"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="target_data">
-                                                                  Target Data
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                name={
+                                                                  source_dataId
+                                                                }
+                                                                data-id={
+                                                                  stepInDataIdx
+                                                                }
+                                                                id={source_dataId}
+                                                                value={stepIn.data[stepInDataIdx].source_data}
+                                                                onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "source_data")}
+                                                                placeholder="Enter Source Data"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="target_data">
+                                                                Target Data
                                                                 </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  name={
-                                                                    target_dataId
-                                                                  }
-                                                                  data-id={
-                                                                    stepInDataIdx
-                                                                  }
-                                                                  id={target_dataId}
-                                                                  value={stepIn.data[stepInDataIdx].target_data}
-                                                                  onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "target_data")}
-                                                                  placeholder="Enter Target Data"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="target_name">
-                                                                  Target Name
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                name={
+                                                                  target_dataId
+                                                                }
+                                                                data-id={
+                                                                  stepInDataIdx
+                                                                }
+                                                                id={target_dataId}
+                                                                value={stepIn.data[stepInDataIdx].target_data}
+                                                                onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "target_data")}
+                                                                placeholder="Enter Target Data"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="target_name">
+                                                                Target Name
                                                                 </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  name={
-                                                                    target_nameId
-                                                                  }
-                                                                  data-id={
-                                                                    stepInDataIdx
-                                                                  }
-                                                                  id={target_nameId}
-                                                                  value={stepIn.data[stepInDataIdx].target_name}
-                                                                  onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "target_name")}
-                                                                  placeholder="Enter Target Name"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="target_step">
-                                                                  Target Step
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                name={
+                                                                  target_nameId
+                                                                }
+                                                                data-id={
+                                                                  stepInDataIdx
+                                                                }
+                                                                id={target_nameId}
+                                                                value={stepIn.data[stepInDataIdx].target_name}
+                                                                onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "target_name")}
+                                                                placeholder="Enter Target Name"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="target_step">
+                                                                Target Step
                                                                 </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  name={
-                                                                    target_stepId
-                                                                  }
-                                                                  data-id={
-                                                                    stepInDataIdx
-                                                                  }
-                                                                  id={target_stepId}
-                                                                  value={stepIn.data[stepInDataIdx].target_step}
-                                                                  onChange={(event) => this.handleChangeStepInData(stepInIdx,stepInDataIdx, event, "target_step")}
-                                                                  placeholder="Enter Target Step"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="key">
-                                                                  Key
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                name={
+                                                                  target_stepId
+                                                                }
+                                                                data-id={
+                                                                  stepInDataIdx
+                                                                }
+                                                                id={target_stepId}
+                                                                value={stepIn.data[stepInDataIdx].target_step}
+                                                                onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "target_step")}
+                                                                placeholder="Enter Target Step"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="key">
+                                                                Key
                                                                 </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  name={keyId}
-                                                                  data-id={
-                                                                    stepInDataIdx
-                                                                  }
-                                                                  id={keyId}
-                                                                  value={stepIn.data[stepInDataIdx].key}
-                                                                  onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "key")}
-                                                                  placeholder="Enter Key"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="pre_value">
-                                                                  Pre Value
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                name={keyId}
+                                                                data-id={
+                                                                  stepInDataIdx
+                                                                }
+                                                                id={keyId}
+                                                                value={stepIn.data[stepInDataIdx].key}
+                                                                onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "key")}
+                                                                placeholder="Enter Key"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="pre_value">
+                                                                Pre Value
                                                                 </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  name={pre_valueId}
-                                                                  data-id={
-                                                                    stepInDataIdx
-                                                                  }
-                                                                  id={pre_valueId}
-                                                                  value={stepIn.data[stepInDataIdx].pre_value}
-                                                                  onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "pre_value")}
-                                                                  placeholder="Enter Pre Value"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="post_value">
-                                                                  Post Value
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                name={pre_valueId}
+                                                                data-id={
+                                                                  stepInDataIdx
+                                                                }
+                                                                id={pre_valueId}
+                                                                value={stepIn.data[stepInDataIdx].pre_value}
+                                                                onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "pre_value")}
+                                                                placeholder="Enter Pre Value"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="post_value">
+                                                                Post Value
                                                                 </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  name={
-                                                                    post_valueId
-                                                                  }
-                                                                  data-id={
-                                                                    stepInDataIdx
-                                                                  }
-                                                                  id={post_valueId}
-                                                                  value={stepIn.data[stepInDataIdx].post_value}
-                                                                  onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "post_value")}
-                                                                  placeholder="Enter Post Value"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                          </Form>
-                                                        </CardBody>
-                                                      </Collapse>
-                                                    </Card>
-                                                  );
-                                                }
-                                              )}
-                                            </Fade>
-                                          </Col>
-                                        </Row>
-                                        {/* End Form StepIn Data */}
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                name={
+                                                                  post_valueId
+                                                                }
+                                                                data-id={
+                                                                  stepInDataIdx
+                                                                }
+                                                                id={post_valueId}
+                                                                value={stepIn.data[stepInDataIdx].post_value}
+                                                                onChange={(event) => this.handleChangeStepInData(stepInIdx, stepInDataIdx, event, "post_value")}
+                                                                placeholder="Enter Post Value"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                        </Form>
+                                                      </CardBody>
+                                                    </Collapse>
+                                                  </Card>
+                                                );
+                                              }
+                                            )}
+                                          </Fade>
+                                        </Col>
+                                      </Row>
+                                      {/* End Form StepIn Data */}
 
-                                        {/* Form StepOut */}
-                                        <Row>
-                                          <Col xs="12">
-                                            <Fade
-                                              timeout={this.state.timeout}
-                                              in={this.state.fadeIn}
-                                            >
-                                              {stepIn.steps.map(
-                                                (stepOut, stepOutIdx) => {
-                                                  const nameId = `name-${stepOutIdx}`,
-                                                    descriptionId = `description-${stepOutIdx}`,
-                                                    request_body_typeId = `request_body_type-${stepOutIdx}`,
-                                                    response_body_typeId = `response_body_type-${stepOutIdx}`,
-                                                    request_typeId = `request_type-${stepOutIdx}`,
-                                                    urlId = `url-${stepOutIdx}`,
-                                                    methodId = `method-${stepOutIdx}`;
-                                                  return (
-                                                    <Card>
-                                                      <CardHeader>
-                                                        <strong>{`StepOut ${stepOutIdx +
+                                      {/* Form StepOut */}
+                                      <Row>
+                                        <Col xs="12">
+                                          <Fade
+                                            timeout={this.state.timeout}
+                                            in={this.state.fadeIn}
+                                          >
+                                            {stepIn.steps.map(
+                                              (stepOut, stepOutIdx) => {
+                                                const nameId = `name-${stepOutIdx}`,
+                                                  descriptionId = `description-${stepOutIdx}`,
+                                                  request_body_typeId = `request_body_type-${stepOutIdx}`,
+                                                  response_body_typeId = `response_body_type-${stepOutIdx}`,
+                                                  request_typeId = `request_type-${stepOutIdx}`,
+                                                  urlId = `url-${stepOutIdx}`,
+                                                  methodId = `method-${stepOutIdx}`;
+                                                return (
+                                                  <Card>
+                                                    <CardHeader>
+                                                      <strong>{`StepOut ${stepOutIdx +
                                                         1} `}</strong>
-                                                        <div className="card-header-actions">
+                                                      <div className="card-header-actions">
+                                                        <Button
+                                                          color="link"
+                                                          className="card-header-action btn-minimize"
+                                                          data-target="#collapseExample"
+                                                          onClick={this.toggle}
+                                                        >
+                                                          <i className="icon-arrow-up" />
+                                                        </Button>
+                                                        <Button
+                                                          color="link"
+                                                          className="card-header-action btn-close"
+                                                          onClick={() =>
+                                                            this.onDeleteStepOut(
+                                                              stepInIdx, stepOutIdx
+                                                            )
+                                                          }
+                                                        >
+                                                          <i className="icon-close" />
+                                                        </Button>
+                                                      </div>
+                                                    </CardHeader>
+                                                    <Collapse
+                                                      isOpen={this.state.collapse}
+                                                      id="collapseExample"
+                                                    >
+                                                      <CardBody>
+                                                        <Form className="form-horizontal">
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="name">
+                                                                Name
+                                                                </Label>
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                id="name"
+                                                                name={nameId}
+                                                                value={stepIn.steps[stepOutIdx].name}
+                                                                onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "name")}
+                                                                placeholder="Enter Name"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="description">
+                                                                Description
+                                                                </Label>
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="textarea"
+                                                                name={
+                                                                  descriptionId
+                                                                }
+                                                                id="description"
+                                                                rows="9"
+                                                                value={stepIn.steps[stepOutIdx].description}
+                                                                onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "description")}
+                                                                placeholder="Decription..."
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label>
+                                                                Request Body Type
+                                                                </Label>
+                                                            </Col>
+                                                            <Col md="9">
+                                                              <FormGroup
+                                                                check
+                                                                inline
+                                                              >
+                                                                <Input
+                                                                  className="form-check-input"
+                                                                  type="radio"
+                                                                  id="json"
+                                                                  name={
+                                                                    request_body_typeId
+                                                                  }
+                                                                  value="json"
+                                                                  checked={stepIn.steps[stepOutIdx].request_body_type === 'json'}
+                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "request_body_type")}
+                                                                />
+                                                                <Label
+                                                                  className="form-check-label"
+                                                                  check
+                                                                  htmlFor="request_body_type"
+                                                                >
+                                                                  Json
+                                                                  </Label>
+                                                              </FormGroup>
+                                                              <FormGroup
+                                                                check
+                                                                inline
+                                                              >
+                                                                <Input
+                                                                  className="form-check-input"
+                                                                  type="radio"
+                                                                  id="xml"
+                                                                  name={
+                                                                    request_body_typeId
+                                                                  }
+                                                                  value="xml"
+                                                                  checked={stepIn.steps[stepOutIdx].request_body_type === 'xml'}
+                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "request_body_type")}
+                                                                />
+                                                                <Label
+                                                                  className="form-check-label"
+                                                                  check
+                                                                  htmlFor="request_body_type"
+                                                                >
+                                                                  Xml
+                                                                  </Label>
+                                                              </FormGroup>
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label>
+                                                                Request Type
+                                                                </Label>
+                                                            </Col>
+                                                            <Col md="9">
+                                                              <FormGroup
+                                                                check
+                                                                inline
+                                                              >
+                                                                <Input
+                                                                  className="form-check-input"
+                                                                  type="radio"
+                                                                  id="Web"
+                                                                  name={
+                                                                    request_typeId
+                                                                  }
+                                                                  value="web"
+                                                                  checked={stepIn.steps[stepOutIdx].request_type === 'web'}
+                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "request_type")}
+                                                                />
+                                                                <Label
+                                                                  className="form-check-label"
+                                                                  check
+                                                                  htmlFor="request_type"
+                                                                >
+                                                                  Web
+                                                                  </Label>
+                                                              </FormGroup>
+                                                              <FormGroup
+                                                                check
+                                                                inline
+                                                              >
+                                                                <Input
+                                                                  className="form-check-input"
+                                                                  type="radio"
+                                                                  id="func"
+                                                                  name={
+                                                                    request_typeId
+                                                                  }
+                                                                  value="func"
+                                                                  checked={stepIn.steps[stepOutIdx].request_type === 'func'}
+                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "request_type")}
+                                                                />
+                                                                <Label
+                                                                  className="form-check-label"
+                                                                  check
+                                                                  htmlFor="request_type"
+                                                                >
+                                                                  Func
+                                                                  </Label>
+                                                              </FormGroup>
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label>
+                                                                Response Body Type
+                                                                </Label>
+                                                            </Col>
+                                                            <Col md="9">
+                                                              <FormGroup
+                                                                check
+                                                                inline
+                                                              >
+                                                                <Input
+                                                                  className="form-check-input"
+                                                                  type="radio"
+                                                                  id="json"
+                                                                  name={
+                                                                    response_body_typeId
+                                                                  }
+                                                                  value="json"
+                                                                  checked={stepIn.steps[stepOutIdx].response_body_type === 'json'}
+                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "response_body_type")}
+                                                                />
+                                                                <Label
+                                                                  className="form-check-label"
+                                                                  check
+                                                                  htmlFor="request_type"
+                                                                >
+                                                                  Json
+                                                                  </Label>
+                                                              </FormGroup>
+                                                              <FormGroup
+                                                                check
+                                                                inline
+                                                              >
+                                                                <Input
+                                                                  className="form-check-input"
+                                                                  type="radio"
+                                                                  id="xml"
+                                                                  name={
+                                                                    response_body_typeId
+                                                                  }
+                                                                  value="xml"
+                                                                  checked={stepIn.steps[stepOutIdx].response_body_type === 'xml'}
+                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "response_body_type")}
+                                                                />
+                                                                <Label
+                                                                  className="form-check-label"
+                                                                  check
+                                                                  htmlFor="request_type"
+                                                                >
+                                                                  Xml
+                                                                  </Label>
+                                                              </FormGroup>
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="url">
+                                                                Url
+                                                                </Label>
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                id="url"
+                                                                name={urlId}
+                                                                value={stepIn.steps[stepOutIdx].url}
+                                                                onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "url")}
+                                                                placeholder="Enter Url"
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
+                                                          <FormGroup row>
+                                                            <Col md="3">
+                                                              <Label htmlFor="url">
+                                                                Method
+                                                                </Label>
+                                                            </Col>
+                                                            <Col xs="12" md="9">
+                                                              <Input
+                                                                type="text"
+                                                                id="POST"
+                                                                name={methodId}
+                                                                placeholder="'POST'"
+                                                                disabled
+                                                              />
+                                                            </Col>
+                                                          </FormGroup>
                                                           <Button
-                                                            color="link"
-                                                            className="card-header-action btn-minimize"
-                                                            data-target="#collapseExample"
-                                                            onClick={this.toggle}
-                                                          >
-                                                            <i className="icon-arrow-up" />
-                                                          </Button>
-                                                          <Button
-                                                            color="link"
-                                                            className="card-header-action btn-close"
+                                                            color="primary"
                                                             onClick={() =>
-                                                              this.onDeleteStepOut(
-                                                                stepInIdx, stepOutIdx
-                                                              )
+                                                              this.addStepOutData(stepInIdx, stepOutIdx)
                                                             }
                                                           >
-                                                            <i className="icon-close" />
-                                                          </Button>
-                                                        </div>
-                                                      </CardHeader>
-                                                      <Collapse
-                                                        isOpen={this.state.collapse}
-                                                        id="collapseExample"
-                                                      >
-                                                        <CardBody>
-                                                          <Form className="form-horizontal">
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="name">
-                                                                  Name
-                                                                </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  id="name"
-                                                                  name={nameId}
-                                                                  value={stepIn.steps[stepOutIdx].name}
-                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "name")}
-                                                                  placeholder="Enter Name"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="description">
-                                                                  Description
-                                                                </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="textarea"
-                                                                  name={
-                                                                    descriptionId
-                                                                  }
-                                                                  id="description"
-                                                                  rows="9"
-                                                                  value={stepIn.steps[stepOutIdx].description}
-                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "description")}
-                                                                  placeholder="Decription..."
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label>
-                                                                  Request Body Type
-                                                                </Label>
-                                                              </Col>
-                                                              <Col md="9">
-                                                                <FormGroup
-                                                                  check
-                                                                  inline
-                                                                >
-                                                                  <Input
-                                                                    className="form-check-input"
-                                                                    type="radio"
-                                                                    id="json"
-                                                                    name={
-                                                                      request_body_typeId
-                                                                    }
-                                                                    value="json"
-                                                                    checked={stepIn.steps[stepOutIdx].request_body_type === 'json'}
-                                                                    onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "request_body_type")}
-                                                                  />
-                                                                  <Label
-                                                                    className="form-check-label"
-                                                                    check
-                                                                    htmlFor="request_body_type"
-                                                                  >
-                                                                    Json
-                                                                  </Label>
-                                                                </FormGroup>
-                                                                <FormGroup
-                                                                  check
-                                                                  inline
-                                                                >
-                                                                  <Input
-                                                                    className="form-check-input"
-                                                                    type="radio"
-                                                                    id="xml"
-                                                                    name={
-                                                                      request_body_typeId
-                                                                    }
-                                                                    value="xml"
-                                                                    checked={stepIn.steps[stepOutIdx].request_body_type === 'xml'}
-                                                                    onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "request_body_type")}
-                                                                  />
-                                                                  <Label
-                                                                    className="form-check-label"
-                                                                    check
-                                                                    htmlFor="request_body_type"
-                                                                  >
-                                                                    Xml
-                                                                  </Label>
-                                                                </FormGroup>
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label>
-                                                                  Request Type
-                                                                </Label>
-                                                              </Col>
-                                                              <Col md="9">
-                                                                <FormGroup
-                                                                  check
-                                                                  inline
-                                                                >
-                                                                  <Input
-                                                                    className="form-check-input"
-                                                                    type="radio"
-                                                                    id="Web"
-                                                                    name={
-                                                                      request_typeId
-                                                                    }
-                                                                    value="web"
-                                                                    checked={stepIn.steps[stepOutIdx].request_type === 'web'}
-                                                                    onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "request_type")}
-                                                                  />
-                                                                  <Label
-                                                                    className="form-check-label"
-                                                                    check
-                                                                    htmlFor="request_type"
-                                                                  >
-                                                                    Web
-                                                                  </Label>
-                                                                </FormGroup>
-                                                                <FormGroup
-                                                                  check
-                                                                  inline
-                                                                >
-                                                                  <Input
-                                                                    className="form-check-input"
-                                                                    type="radio"
-                                                                    id="func"
-                                                                    name={
-                                                                      request_typeId
-                                                                    }
-                                                                    value="func"
-                                                                    checked={stepIn.steps[stepOutIdx].request_type === 'func'}
-                                                                    onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "request_type")}
-                                                                  />
-                                                                  <Label
-                                                                    className="form-check-label"
-                                                                    check
-                                                                    htmlFor="request_type"
-                                                                  >
-                                                                    Func
-                                                                  </Label>
-                                                                </FormGroup>
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label>
-                                                                  Response Body Type
-                                                                </Label>
-                                                              </Col>
-                                                              <Col md="9">
-                                                                <FormGroup
-                                                                  check
-                                                                  inline
-                                                                >
-                                                                  <Input
-                                                                    className="form-check-input"
-                                                                    type="radio"
-                                                                    id="json"
-                                                                    name={
-                                                                      response_body_typeId
-                                                                    }
-                                                                    value="json"
-                                                                    checked={stepIn.steps[stepOutIdx].response_body_type === 'json'}
-                                                                    onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "response_body_type")}
-                                                                  />
-                                                                  <Label
-                                                                    className="form-check-label"
-                                                                    check
-                                                                    htmlFor="request_type"
-                                                                  >
-                                                                    Json
-                                                                  </Label>
-                                                                </FormGroup>
-                                                                <FormGroup
-                                                                  check
-                                                                  inline
-                                                                >
-                                                                  <Input
-                                                                    className="form-check-input"
-                                                                    type="radio"
-                                                                    id="xml"
-                                                                    name={
-                                                                      response_body_typeId
-                                                                    }
-                                                                    value="xml"
-                                                                    checked={stepIn.steps[stepOutIdx].response_body_type === 'xml'}
-                                                                    onChange={(event) => this.handleChangeStepOut(stepInIdx, stepOutIdx, event, "response_body_type")}
-                                                                  />
-                                                                  <Label
-                                                                    className="form-check-label"
-                                                                    check
-                                                                    htmlFor="request_type"
-                                                                  >
-                                                                    Xml
-                                                                  </Label>
-                                                                </FormGroup>
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="url">
-                                                                  Url
-                                                                </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  id="url"
-                                                                  name={urlId}
-                                                                  value={stepIn.steps[stepOutIdx].url}
-                                                                  onChange={(event) => this.handleChangeStepOut(stepInIdx,stepOutIdx, event, "url")}
-                                                                  placeholder="Enter Url"
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <FormGroup row>
-                                                              <Col md="3">
-                                                                <Label htmlFor="url">
-                                                                  Method
-                                                                </Label>
-                                                              </Col>
-                                                              <Col xs="12" md="9">
-                                                                <Input
-                                                                  type="text"
-                                                                  id="POST"
-                                                                  name={methodId}
-                                                                  placeholder="'POST'"
-                                                                  disabled
-                                                                />
-                                                              </Col>
-                                                            </FormGroup>
-                                                            <Button
-                                                              color="primary"
-                                                              onClick={() =>
-                                                                this.addStepOutData(stepInIdx, stepOutIdx)
-                                                              }
-                                                            >
-                                                              <i className="fa fa-plus" />
-                                                              &nbsp;Add StepsOut Data
+                                                            <i className="fa fa-plus" />
+                                                            &nbsp;Add StepsOut Data
                                                             </Button>
-                                                            <br /> <br />
+                                                          <br /> <br />
 
 
-                                                            {/*Table Form StepsOut Data*/}
-                                                            <Row>
-                                                              <Col xs="12">
-                                                                <Fade
-                                                                  timeout={
-                                                                    this.state
-                                                                      .timeout
-                                                                  }
-                                                                  in={
-                                                                    this.state
-                                                                      .fadeIn
-                                                                  }
-                                                                >
-                                                                  <Row>
-                                                                    <Col xs="12">
-                                                                      <Fade
-                                                                        timeout={
-                                                                          this.state
-                                                                            .timeout
-                                                                        }
-                                                                        in={
-                                                                          this.state
-                                                                            .fadeIn
-                                                                        }
-                                                                      >
-                                                                        {stepOut.data.map(
-                                                                          (
-                                                                            stepOutdata,
-                                                                            stepOutDataIdx
-                                                                          ) => {
-                                                                            const source_dataId = `source_data-${stepOutDataIdx}`,
-                                                                              target_dataId = `target_data-${stepOutDataIdx}`,
-                                                                              target_nameId = `target_name-${stepOutDataIdx}`,
-                                                                              target_stepId = `target_step-${stepOutDataIdx}`,
-                                                                              keyId = `key-${stepOutDataIdx}`,
-                                                                              pre_valueId = `pre_value-${stepOutDataIdx}`,
-                                                                              post_valueId = `post_value-${stepOutDataIdx}`;
-                                                                            return (
-                                                                              <Card>
-                                                                                <CardHeader>
-                                                                                  <strong
-                                                                                    htmlFor={
-                                                                                      this
-                                                                                        .state
-                                                                                        .steps
-                                                                                    }
-                                                                                  >{`StepsOut Data ${stepInIdx +
-                                                                                  1} `}</strong>
-                                                                                  <small>
-                                                                                    {`Form ${stepOutDataIdx +
-                                                                                    1}`}
-                                                                                  </small>
-                                                                                  <div className="card-header-actions">
-                                                                                    <Button
-                                                                                      color="link"
-                                                                                      className="card-header-action btn-minimize"
-                                                                                      data-target="#collapseExample"
-                                                                                      onClick={
-                                                                                        this
-                                                                                          .toggle
-                                                                                      }
-                                                                                    >
-                                                                                      <i className="icon-arrow-up" />
-                                                                                    </Button>
-                                                                                    <Button
-                                                                                      color="link"
-                                                                                      className="card-header-action btn-close"
-                                                                                      onClick={() =>
-                                                                                        this.onDeleteStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx)
-                                                                                      }
-                                                                                    >
-                                                                                      <i className="icon-close" />
-                                                                                    </Button>
-                                                                                  </div>
-                                                                                </CardHeader>
-                                                                                <Collapse
-                                                                                  isOpen={
+                                                          {/*Table Form StepsOut Data*/}
+                                                          <Row>
+                                                            <Col xs="12">
+                                                              <Fade
+                                                                timeout={
+                                                                  this.state
+                                                                    .timeout
+                                                                }
+                                                                in={
+                                                                  this.state
+                                                                    .fadeIn
+                                                                }
+                                                              >
+                                                                <Row>
+                                                                  <Col xs="12">
+                                                                    <Fade
+                                                                      timeout={
+                                                                        this.state
+                                                                          .timeout
+                                                                      }
+                                                                      in={
+                                                                        this.state
+                                                                          .fadeIn
+                                                                      }
+                                                                    >
+                                                                      {stepOut.data.map(
+                                                                        (
+                                                                          stepOutdata,
+                                                                          stepOutDataIdx
+                                                                        ) => {
+                                                                          const source_dataId = `source_data-${stepOutDataIdx}`,
+                                                                            target_dataId = `target_data-${stepOutDataIdx}`,
+                                                                            target_nameId = `target_name-${stepOutDataIdx}`,
+                                                                            target_stepId = `target_step-${stepOutDataIdx}`,
+                                                                            keyId = `key-${stepOutDataIdx}`,
+                                                                            pre_valueId = `pre_value-${stepOutDataIdx}`,
+                                                                            post_valueId = `post_value-${stepOutDataIdx}`;
+                                                                          return (
+                                                                            <Card>
+                                                                              <CardHeader>
+                                                                                <strong
+                                                                                  htmlFor={
                                                                                     this
                                                                                       .state
-                                                                                      .collapse
+                                                                                      .steps
                                                                                   }
-                                                                                  id="collapseExample"
-                                                                                >
-                                                                                  <CardBody>
-                                                                                    <Form className="form-horizontal">
-                                                                                      <FormGroup
-                                                                                        row
-                                                                                      >
-                                                                                        <Col md="3">
-                                                                                          <Label htmlFor="source_data">
-                                                                                            Source
-                                                                                            Data
+                                                                                >{`StepsOut Data ${stepInIdx +
+                                                                                  1} `}</strong>
+                                                                                <small>
+                                                                                  {`Form ${stepOutDataIdx +
+                                                                                    1}`}
+                                                                                </small>
+                                                                                <div className="card-header-actions">
+                                                                                  <Button
+                                                                                    color="link"
+                                                                                    className="card-header-action btn-minimize"
+                                                                                    data-target="#collapseExample"
+                                                                                    onClick={
+                                                                                      this
+                                                                                        .toggle
+                                                                                    }
+                                                                                  >
+                                                                                    <i className="icon-arrow-up" />
+                                                                                  </Button>
+                                                                                  <Button
+                                                                                    color="link"
+                                                                                    className="card-header-action btn-close"
+                                                                                    onClick={() =>
+                                                                                      this.onDeleteStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx)
+                                                                                    }
+                                                                                  >
+                                                                                    <i className="icon-close" />
+                                                                                  </Button>
+                                                                                </div>
+                                                                              </CardHeader>
+                                                                              <Collapse
+                                                                                isOpen={
+                                                                                  this
+                                                                                    .state
+                                                                                    .collapse
+                                                                                }
+                                                                                id="collapseExample"
+                                                                              >
+                                                                                <CardBody>
+                                                                                  <Form className="form-horizontal">
+                                                                                    <FormGroup
+                                                                                      row
+                                                                                    >
+                                                                                      <Col md="3">
+                                                                                        <Label htmlFor="source_data">
+                                                                                          Source
+                                                                                          Data
                                                                                           </Label>
-                                                                                        </Col>
-                                                                                        <Col
-                                                                                          xs="12"
-                                                                                          md="9"
-                                                                                        >
-                                                                                          <Input
-                                                                                            type="text"
-                                                                                            name={
-                                                                                              source_dataId
-                                                                                            }
-                                                                                            data-id={
-                                                                                              stepOutDataIdx
-                                                                                            }
-                                                                                            id={
-                                                                                              source_dataId
-                                                                                            }
-                                                                                            value={stepOut.data[stepOutDataIdx].source_data}
-                                                                                            onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "source_data")}
-                                                                                            placeholder="Enter Source Data"
-                                                                                          />
-                                                                                        </Col>
-                                                                                      </FormGroup>
-                                                                                      <FormGroup
-                                                                                        row
+                                                                                      </Col>
+                                                                                      <Col
+                                                                                        xs="12"
+                                                                                        md="9"
                                                                                       >
-                                                                                        <Col md="3">
-                                                                                          <Label htmlFor="target_data">
-                                                                                            Target
-                                                                                            Data
+                                                                                        <Input
+                                                                                          type="text"
+                                                                                          name={
+                                                                                            source_dataId
+                                                                                          }
+                                                                                          data-id={
+                                                                                            stepOutDataIdx
+                                                                                          }
+                                                                                          id={
+                                                                                            source_dataId
+                                                                                          }
+                                                                                          value={stepOut.data[stepOutDataIdx].source_data}
+                                                                                          onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "source_data")}
+                                                                                          placeholder="Enter Source Data"
+                                                                                        />
+                                                                                      </Col>
+                                                                                    </FormGroup>
+                                                                                    <FormGroup
+                                                                                      row
+                                                                                    >
+                                                                                      <Col md="3">
+                                                                                        <Label htmlFor="target_data">
+                                                                                          Target
+                                                                                          Data
                                                                                           </Label>
-                                                                                        </Col>
-                                                                                        <Col
-                                                                                          xs="12"
-                                                                                          md="9"
-                                                                                        >
-                                                                                          <Input
-                                                                                            type="text"
-                                                                                            name={
-                                                                                              target_dataId
-                                                                                            }
-                                                                                            data-id={
-                                                                                              stepOutDataIdx
-                                                                                            }
-                                                                                            id={
-                                                                                              target_dataId
-                                                                                            }
-                                                                                            value={stepOut.data[stepOutDataIdx].target_data}
-                                                                                            onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "target_data")}
-                                                                                            placeholder="Enter Target Data"
-                                                                                          />
-                                                                                        </Col>
-                                                                                      </FormGroup>
-                                                                                      <FormGroup
-                                                                                        row
+                                                                                      </Col>
+                                                                                      <Col
+                                                                                        xs="12"
+                                                                                        md="9"
                                                                                       >
-                                                                                        <Col md="3">
-                                                                                          <Label htmlFor="target_name">
-                                                                                            Target
-                                                                                            Name
+                                                                                        <Input
+                                                                                          type="text"
+                                                                                          name={
+                                                                                            target_dataId
+                                                                                          }
+                                                                                          data-id={
+                                                                                            stepOutDataIdx
+                                                                                          }
+                                                                                          id={
+                                                                                            target_dataId
+                                                                                          }
+                                                                                          value={stepOut.data[stepOutDataIdx].target_data}
+                                                                                          onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "target_data")}
+                                                                                          placeholder="Enter Target Data"
+                                                                                        />
+                                                                                      </Col>
+                                                                                    </FormGroup>
+                                                                                    <FormGroup
+                                                                                      row
+                                                                                    >
+                                                                                      <Col md="3">
+                                                                                        <Label htmlFor="target_name">
+                                                                                          Target
+                                                                                          Name
                                                                                           </Label>
-                                                                                        </Col>
-                                                                                        <Col
-                                                                                          xs="12"
-                                                                                          md="9"
-                                                                                        >
-                                                                                          <Input
-                                                                                            type="text"
-                                                                                            name={
-                                                                                              target_nameId
-                                                                                            }
-                                                                                            data-id={
-                                                                                              stepOutDataIdx
-                                                                                            }
-                                                                                            id={
-                                                                                              target_nameId
-                                                                                            }
-                                                                                            value={stepOut.data[stepOutDataIdx].target_name}
-                                                                                            onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "target_name")}
-                                                                                            placeholder="Enter Target Name"
-                                                                                          />
-                                                                                        </Col>
-                                                                                      </FormGroup>
-                                                                                      <FormGroup
-                                                                                        row
+                                                                                      </Col>
+                                                                                      <Col
+                                                                                        xs="12"
+                                                                                        md="9"
                                                                                       >
-                                                                                        <Col md="3">
-                                                                                          <Label htmlFor="target_step">
-                                                                                            Target
-                                                                                            Step
+                                                                                        <Input
+                                                                                          type="text"
+                                                                                          name={
+                                                                                            target_nameId
+                                                                                          }
+                                                                                          data-id={
+                                                                                            stepOutDataIdx
+                                                                                          }
+                                                                                          id={
+                                                                                            target_nameId
+                                                                                          }
+                                                                                          value={stepOut.data[stepOutDataIdx].target_name}
+                                                                                          onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "target_name")}
+                                                                                          placeholder="Enter Target Name"
+                                                                                        />
+                                                                                      </Col>
+                                                                                    </FormGroup>
+                                                                                    <FormGroup
+                                                                                      row
+                                                                                    >
+                                                                                      <Col md="3">
+                                                                                        <Label htmlFor="target_step">
+                                                                                          Target
+                                                                                          Step
                                                                                           </Label>
-                                                                                        </Col>
-                                                                                        <Col
-                                                                                          xs="12"
-                                                                                          md="9"
-                                                                                        >
-                                                                                          <Input
-                                                                                            type="text"
-                                                                                            name={
-                                                                                              target_stepId
-                                                                                            }
-                                                                                            data-id={
-                                                                                              stepOutDataIdx
-                                                                                            }
-                                                                                            id={
-                                                                                              target_stepId
-                                                                                            }
-                                                                                            value={stepOut.data[stepOutDataIdx].target_step}
-                                                                                            onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "target_step")}
-                                                                                            placeholder="Enter Target Step"
-                                                                                          />
-                                                                                        </Col>
-                                                                                      </FormGroup>
-                                                                                      <FormGroup
-                                                                                        row
+                                                                                      </Col>
+                                                                                      <Col
+                                                                                        xs="12"
+                                                                                        md="9"
                                                                                       >
-                                                                                        <Col md="3">
-                                                                                          <Label htmlFor="key">
-                                                                                            Key
+                                                                                        <Input
+                                                                                          type="text"
+                                                                                          name={
+                                                                                            target_stepId
+                                                                                          }
+                                                                                          data-id={
+                                                                                            stepOutDataIdx
+                                                                                          }
+                                                                                          id={
+                                                                                            target_stepId
+                                                                                          }
+                                                                                          value={stepOut.data[stepOutDataIdx].target_step}
+                                                                                          onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "target_step")}
+                                                                                          placeholder="Enter Target Step"
+                                                                                        />
+                                                                                      </Col>
+                                                                                    </FormGroup>
+                                                                                    <FormGroup
+                                                                                      row
+                                                                                    >
+                                                                                      <Col md="3">
+                                                                                        <Label htmlFor="key">
+                                                                                          Key
                                                                                           </Label>
-                                                                                        </Col>
-                                                                                        <Col
-                                                                                          xs="12"
-                                                                                          md="9"
-                                                                                        >
-                                                                                          <Input
-                                                                                            type="text"
-                                                                                            name={
-                                                                                              keyId
-                                                                                            }
-                                                                                            data-id={
-                                                                                              stepOutDataIdx
-                                                                                            }
-                                                                                            id={
-                                                                                              keyId
-                                                                                            }
-                                                                                            value={stepOut.data[stepOutDataIdx].key}
-                                                                                            onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "key")}
-                                                                                            placeholder="Enter Key"
-                                                                                          />
-                                                                                        </Col>
-                                                                                      </FormGroup>
-                                                                                      <FormGroup
-                                                                                        row
+                                                                                      </Col>
+                                                                                      <Col
+                                                                                        xs="12"
+                                                                                        md="9"
                                                                                       >
-                                                                                        <Col md="3">
-                                                                                          <Label htmlFor="pre_value">
-                                                                                            Pre
-                                                                                            Value
+                                                                                        <Input
+                                                                                          type="text"
+                                                                                          name={
+                                                                                            keyId
+                                                                                          }
+                                                                                          data-id={
+                                                                                            stepOutDataIdx
+                                                                                          }
+                                                                                          id={
+                                                                                            keyId
+                                                                                          }
+                                                                                          value={stepOut.data[stepOutDataIdx].key}
+                                                                                          onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "key")}
+                                                                                          placeholder="Enter Key"
+                                                                                        />
+                                                                                      </Col>
+                                                                                    </FormGroup>
+                                                                                    <FormGroup
+                                                                                      row
+                                                                                    >
+                                                                                      <Col md="3">
+                                                                                        <Label htmlFor="pre_value">
+                                                                                          Pre
+                                                                                          Value
                                                                                           </Label>
-                                                                                        </Col>
-                                                                                        <Col
-                                                                                          xs="12"
-                                                                                          md="9"
-                                                                                        >
-                                                                                          <Input
-                                                                                            type="text"
-                                                                                            name={
-                                                                                              pre_valueId
-                                                                                            }
-                                                                                            data-id={
-                                                                                              stepOutDataIdx
-                                                                                            }
-                                                                                            id={
-                                                                                              pre_valueId
-                                                                                            }
-                                                                                            value={stepOut.data[stepOutDataIdx].pre_value}
-                                                                                            onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "pre_value")}
-                                                                                            placeholder="Enter Pre Value"
-                                                                                          />
-                                                                                        </Col>
-                                                                                      </FormGroup>
-                                                                                      <FormGroup
-                                                                                        row
+                                                                                      </Col>
+                                                                                      <Col
+                                                                                        xs="12"
+                                                                                        md="9"
                                                                                       >
-                                                                                        <Col md="3">
-                                                                                          <Label htmlFor="post_value">
-                                                                                            Post
-                                                                                            Value
+                                                                                        <Input
+                                                                                          type="text"
+                                                                                          name={
+                                                                                            pre_valueId
+                                                                                          }
+                                                                                          data-id={
+                                                                                            stepOutDataIdx
+                                                                                          }
+                                                                                          id={
+                                                                                            pre_valueId
+                                                                                          }
+                                                                                          value={stepOut.data[stepOutDataIdx].pre_value}
+                                                                                          onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "pre_value")}
+                                                                                          placeholder="Enter Pre Value"
+                                                                                        />
+                                                                                      </Col>
+                                                                                    </FormGroup>
+                                                                                    <FormGroup
+                                                                                      row
+                                                                                    >
+                                                                                      <Col md="3">
+                                                                                        <Label htmlFor="post_value">
+                                                                                          Post
+                                                                                          Value
                                                                                           </Label>
-                                                                                        </Col>
-                                                                                        <Col
-                                                                                          xs="12"
-                                                                                          md="9"
-                                                                                        >
-                                                                                          <Input
-                                                                                            type="text"
-                                                                                            name={
-                                                                                              post_valueId
-                                                                                            }
-                                                                                            data-id={
-                                                                                              stepOutDataIdx
-                                                                                            }
-                                                                                            id={
-                                                                                              post_valueId
-                                                                                            }
-                                                                                            value={stepOut.data[stepOutDataIdx].post_value}
-                                                                                            onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "post_value")}
-                                                                                            placeholder="Enter Post Value"
-                                                                                          />
-                                                                                        </Col>
-                                                                                      </FormGroup>
-                                                                                    </Form>
-                                                                                  </CardBody>
-                                                                                </Collapse>
-                                                                              </Card>
-                                                                            );
-                                                                          }
-                                                                        )}
-                                                                      </Fade>
-                                                                    </Col>
-                                                                  </Row>
-                                                                </Fade>
-                                                              </Col>
-                                                            </Row>
-                                                          </Form>
-                                                        </CardBody>
-                                                      </Collapse>
-                                                    </Card>
-                                                  );
-                                                }
-                                              )}
-                                            </Fade>
-                                          </Col>
-                                        </Row>
-                                      </Form>
-                                    </CardBody>
-                                  </Collapse>
-                                </Card>
-                              );
-                            })}
-                          </Fade>
-                        </Col>
-                      </Row>
-                    ):null}
+                                                                                      </Col>
+                                                                                      <Col
+                                                                                        xs="12"
+                                                                                        md="9"
+                                                                                      >
+                                                                                        <Input
+                                                                                          type="text"
+                                                                                          name={
+                                                                                            post_valueId
+                                                                                          }
+                                                                                          data-id={
+                                                                                            stepOutDataIdx
+                                                                                          }
+                                                                                          id={
+                                                                                            post_valueId
+                                                                                          }
+                                                                                          value={stepOut.data[stepOutDataIdx].post_value}
+                                                                                          onChange={(event) => this.handleChangeStepOutData(stepInIdx, stepOutIdx, stepOutDataIdx, event, "post_value")}
+                                                                                          placeholder="Enter Post Value"
+                                                                                        />
+                                                                                      </Col>
+                                                                                    </FormGroup>
+                                                                                  </Form>
+                                                                                </CardBody>
+                                                                              </Collapse>
+                                                                            </Card>
+                                                                          );
+                                                                        }
+                                                                      )}
+                                                                    </Fade>
+                                                                  </Col>
+                                                                </Row>
+                                                              </Fade>
+                                                            </Col>
+                                                          </Row>
+                                                        </Form>
+                                                      </CardBody>
+                                                    </Collapse>
+                                                  </Card>
+                                                );
+                                              }
+                                            )}
+                                          </Fade>
+                                        </Col>
+                                      </Row>
+                                    </Form>
+                                  </CardBody>
+                                </Collapse>
+                              </Card>
+                            );
+                          })}
+                        </Fade>
+                      </Col>
+                    </Row>
+                  ) : null}
 
                   <FormGroup row>
                     <Col md="3">
@@ -1604,20 +1674,20 @@ class Forms extends Component {
                     </Col>
                   </FormGroup>
                   <FormGroup row>
-                  <Col md="3">
-                    <Label>Additional Form</Label>
-                  </Col>
+                    <Col md="3">
+                      <Label>Additional Form</Label>
+                    </Col>
                   </FormGroup>
                   <Button
                     onClick={this.addForm}
                     className="mr-2"
                     color="primary"
                     color="primary">
-                    <i className="fa fa-plus"/>
+                    <i className="fa fa-plus" />
                     &nbsp;Add Form
                   </Button>
-                  <br/>
-                  <br/>
+                  <br />
+                  <br />
                   {this.state.biller.additional_data.map((additional_data, additionalDataIdx) => {
                     const keyId = `key-${additionalDataIdx}`,
                       valueId = `value-${additionalDataIdx}`;
@@ -1628,31 +1698,31 @@ class Forms extends Component {
                         </Col>
                         <FormGroup className="pr-3">
                           <Input type="text"
-                                 placeholder="Title or Key"
-                                 name={keyId}
-                                 data-id={additionalDataIdx}
-                                 id={keyId}
-                                 value={additional_data[0]}
-                                 onChange={(event) => this.handleChangeaddForm(additionalDataIdx, event, "additional_data_key")}
-                                 required/>
+                            placeholder="Title or Key"
+                            name={keyId}
+                            data-id={additionalDataIdx}
+                            id={keyId}
+                            value={additional_data[0]}
+                            onChange={(event) => this.handleChangeaddForm(additionalDataIdx, event, "additional_data_key")}
+                            required />
                         </FormGroup>
                         <FormGroup className="pr-3">
                           <Input type="text"
-                                 placeholder="Field or Value"
-                                 name={valueId}
-                                 data-id={additionalDataIdx}
-                                 id={valueId}
-                                 value={additional_data[1]}
-                                 onChange={(event) => this.handleChangeaddForm(additionalDataIdx, event, "additional_data_value")}
-                                 required/>
+                            placeholder="Field or Value"
+                            name={valueId}
+                            data-id={additionalDataIdx}
+                            id={valueId}
+                            value={additional_data[1]}
+                            onChange={(event) => this.handleChangeaddForm(additionalDataIdx, event, "additional_data_value")}
+                            required />
                         </FormGroup>
-                      <FormGroup>
-                        <Button
-                          onClick={() => this.onDeleteaddForm(additionalDataIdx)}
-                          color="danger">
-                          <i className="fa fa-close"/>
-                        </Button>
-                      </FormGroup>
+                        <FormGroup>
+                          <Button
+                            onClick={() => this.onDeleteaddForm(additionalDataIdx)}
+                            color="danger">
+                            <i className="fa fa-close" />
+                          </Button>
+                        </FormGroup>
                       </FormGroup>
                     )
                   })}
@@ -1665,7 +1735,7 @@ class Forms extends Component {
                   size="sm"
                   color="primary"
                   className="mr-2"
-                  onClick={this.handleSubmitBiller}>
+                  onClick={() => this.handleSubmitBiller(isEdit)}>
                   <i className="fa fa-dot-circle-o" /> Submit
                 </Button>
                 <Button
@@ -1684,4 +1754,14 @@ class Forms extends Component {
   }
 }
 
-export default Forms;
+const mapDispatchToProps = dispatch => {
+  return {
+    addBiller: biller => dispatch(addBiller(biller)),
+    updateBiller: data => dispatch(updateBiller(data))
+  }
+}
+const mapStateToProps = state => ({
+  dataBiller: state.biller.dataBiller
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Forms);
